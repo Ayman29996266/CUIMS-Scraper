@@ -50,27 +50,27 @@ This tool is ideal for students working on personal projects or designing dashbo
 ### Function parameters:
 
 
-- *UID:*                 Student UID.
-- *PASSWORD:*            Student password.
+- UID:                 Student UID.
+- PASSWORD:            Student password.
 
-- *save_to_file:*        Whither the function will save the collected data in a json file or not. Either way, the function will return the scraped data as a python dictionary.
-- *filename:*            The name of the json file to save data in.
-- *overwrite:*           Overwrite the previous json file (if found) or not. If not, new ones come enumerated.
+- save_to_file:        Whither the function will save the collected data in a json file or not. Either way, the function will return the scraped data as a python dictionary.
+- filename:            The name of the json file to save data in.
+- overwrite:           Overwrite the previous json file (if found) or not. If not, new ones come enumerated.
 
-- *homepage:*            Scrape info in homepage (mentor) (messages).
-- *download_IDcard:*     Download ID card from homepage or not.
-- *download_folder:*     Your browser download folder.
+- homepage:            Scrape info in homepage (mentor) (messages).
+- download_IDcard:     Download ID card from homepage or not.
+- download_folder:     Your browser download folder.
 
-- *profile:*             Scrape student profile.
-- *get_profile_pic:*     Get the student profile picture from profile.
+- profile:             Scrape student profile.
+- get_profile_pic:     Get the student profile picture from profile.
 
-- *attendance:*          Scrape students attendance.
-- *timetable:*           Scrape students time table.
-- *datesheet:*           Scrape students date sheet.
-- *prac_datesheet:*      Scrape students practical date sheet.
-- *reg_marks:*           Scrape students regular marks.
-- *reg_results:*         Scrape students regular results.
-- *hostel:*              Scrape students hostel info.
+- attendance:          Scrape students attendance.
+- timetable:           Scrape students time table.
+- datesheet:           Scrape students date sheet.
+- prac_datesheet:      Scrape students practical date sheet.
+- reg_marks:           Scrape students regular marks.
+- reg_results:         Scrape students regular results.
+- hostel:              Scrape students hostel info.
 
 (NOTE: if all scrape options are set to False or left unfilled, the function will set them all to True automatically)
 
