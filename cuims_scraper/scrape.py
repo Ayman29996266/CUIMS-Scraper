@@ -9,7 +9,7 @@ from .startup import FirefoxOptions
 
 
 
-def scrape(driver, UID, PASSWORD, download_folder='', save_to_file=True, filename='data',
+def scrape(UID, PASSWORD, download_folder='', save_to_file=True, filename='data',
            overwrite=True, download_IDcard=True, get_profile_pic=True,
            profile=False, timetable=False, reg_marks=False, reg_results=False,
            datesheet=False, prac_datesheet=False, attendanc=False, hostel=False,
