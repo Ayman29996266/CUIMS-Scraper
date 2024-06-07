@@ -20,7 +20,6 @@ def scrape(UID, PASSWORD, download_folder='', save_to_file=True, filename='data'
     
         - UID:                  Student UID.                                        (str)
         - PASSWORD:             Student password.                                   (str)
-        - driver:               Path to your geckodriver.                           (str)
 
         - save_to_file:         Whither the function will save the collected
                                 data in a json file or not. Either way, the
