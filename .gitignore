@@ -1,14 +1,6 @@
-# Virtual env (common names)
 venv/
 .venv/
-
-# Python bytecode / caches
 __pycache__/
 *.py[cod]
-
-# Logs (anywhere)
 *.log
-
-# Data / assets (anywhere)
-*.png
 *.json

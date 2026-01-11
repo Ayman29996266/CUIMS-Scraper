@@ -1,91 +1,170 @@
-from inspect import currentframe
-from inspect import getfile
-
+from ..constants import *
 from ..logger import *
-from ..startup import ElementNotInteractableException
-from ..startup import StaleElementReferenceException
-from ..startup import easyocr
-from ..startup import Image
-from ..startup import By
+
+from selenium.common.exceptions import (
+    TimeoutException,
+    ElementNotInteractableException,
+    StaleElementReferenceException,
+)
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from PIL import Image
+from io import BytesIO
+import easyocr
+import numpy as np
 
 
+def get_captcha(driver, reader, captcha_id: str, timeout: int = 10) -> str:
+    """
+    Capture the captcha image element and extract its text using EasyOCR.
 
-def get_captcha(driver) -> str:
-    path = getfile(currentframe())[:-8] + "captcha.png"
-    driver.get_screenshot_as_file(path)
+    Args:
+        driver: Selenium WebDriver instance currently on the page that shows the captcha.
+        captcha_id: The HTML id attribute of the captcha image element.
+        timeout: Seconds to wait for the captcha element to be present.
 
-    img = Image.open(path)
-    box = (390, 470, 460, 510)
-    cropped = img.crop(box=box)
-    cropped.save(path)
+    Returns:
+        The OCR-extracted captcha text (stripped).
 
-    reader = easyocr.Reader(['en'])
-    cap = reader.readtext(path)[0][1]
+    Raises:
+        TimeoutException: If the captcha element does not appear within `timeout`.
+        IndexError: If OCR returns no results (nothing readable).
+    """
 
-    return cap
+    captcha_el = WebDriverWait(driver, timeout).until(
+        EC.presence_of_element_located((By.ID, captcha_id))
+    )
+
+    # Take a screenshot of the element itself as PNG bytes.
+    png_bytes = captcha_el.screenshot_as_png
+
+    # Convert PNG bytes to a PIL Image then a numpy array so it can be fed to OCR.
+    img = Image.open(BytesIO(png_bytes)).convert("RGB")
+    img = np.array(img)
+    results = reader.readtext(img, detail=0)
+
+    # detail=0 returns a simple list of strings (best match first).
+    try:
+        return results[0].strip()
+    except IndexError:
+        critical("EasyOCR was not able to read the captcha image.")
+        return ""
 
 
+def login(driver, uid: str, password: str, attempts: int = 5) -> None:
+    """
+    Log into the website using UID, password, and an OCR-scanned captcha (may need retries).
 
-def login(driver, UID, PASSWORD) -> None:
+    The function:
+    1) Enters the UID and clicks Next.
+    2) Repeatedly enters password + scanned captcha and clicks Login.
+    3) After each submission, checks whether the login page is still present:
+       - If still on login page and an error popup indicates wrong captcha, retry.
+       - If error indicates wrong credentials, exits with a credentials error code.
+       - If login page is gone, treats it as a successful login.
+
+    Args:
+        driver: Selenium WebDriver instance already on the login page.
+        uid: User ID to submit.
+        password: Password to submit.
+        attempts: Maximum number of captcha/login retries before giving up.
+
+    Raises:
+        TimeoutException: If required elements never appear within wait time.
+    """
     info("Logging in...")
 
-    info("Locating, filling and posting UID form...")
+    wait = WebDriverWait(driver, 10)
+
+    # --- Step 1: UID page ---
+    info("Entering UID and clicking Next...")
     try:
-        UID_input = driver.find_element(By.ID, 'txtUserId')
-        UID_input.click()
-        UID_input.send_keys(UID)
-        next_btn = driver.find_element(By.ID, 'btnNext')
+        uid_field = wait.until(EC.element_to_be_clickable((By.ID, UID_FIELD_ID)))
+        uid_field.clear()
+        uid_field.send_keys(uid)
+
+        next_btn = wait.until(EC.element_to_be_clickable((By.ID, NEXT_BTN_ID)))
         next_btn.click()
-        info("Done.")
-    except:
-        exception("Couldn't post UID form.")
-    
-    
-    while True:
-        info("Locating, filling and posting password and captcha...")
+        info("UID submitted.")
+    except TimeoutException:
+        exception("Couldn't fill and post the UID field (timeout).")
+        raise
+
+    # --- Step 2: Password + captcha page ---
+    reader = easyocr.Reader(["en"])  # for captcha scan
+
+    info("Entering password + captcha and submitting...")
+    for attempt in range(1, attempts + 1):
+        info(f"Login attempt {attempt}/{attempts}...")
+
         try:
-            pass_input = driver.find_element(By.ID, 'txtLoginPassword')
-            pass_input.click()
-            pass_input.send_keys(PASSWORD)
-            info("Password done.")
-        except:
-            exception("Couldn't fill password ")
+            pw_field = wait.until(
+                EC.element_to_be_clickable((By.ID, PASSWORD_FIELD_ID))
+            )
+            pw_field.clear()
+            pw_field.send_keys(password)
+
+            cap_field = wait.until(
+                EC.element_to_be_clickable((By.ID, CAPTCHA_FIELD_ID))
+            )
+            cap_field.clear()
+            cap_field.send_keys(get_captcha(driver, reader, CAPTCHA_IMAGE_ID))
+
+            login_btn = wait.until(EC.element_to_be_clickable((By.ID, LOGIN_BTN_ID)))
+            login_btn.click()
+        except TimeoutException:
+            exception("Couldn't fill password/captcha or click login (timeout).")
+            continue
+        except (ElementNotInteractableException, StaleElementReferenceException):
+            # DOM updated during interaction; retry the whole attempt.
             continue
 
-        info("Getting captcha input from user")
+        # --- Step 3: Determine success vs. form error ---
+        # If login page marker is absent, assume success.
         try:
-            cap_input = driver.find_element(By.ID, 'txtcaptcha')
-            cap_input.click()
-            cap_input.clear()
-            cap_input.send_keys(get_captcha(driver))
-        except:
-            exception("Couldn't fill captcha.")
+            WebDriverWait(driver, 3).until(
+                EC.presence_of_element_located((By.ID, LOGIN_PAGE_ID))
+            )
+        except TimeoutException:
+            info("Login successful.")
+            return
+
+        # Still on login page: try to detect error popup and decide what to do.
+        try:
+            popups = driver.find_elements(By.CLASS_NAME, LOGIN_ERROR_POPUP_CLASS)
+            if not popups:
+                warning("Still on login page, but no error popup found. Retrying...")
+                continue
+
+            # Collect all <p> messages in the popup.
+            ps = popups[0].find_elements(By.TAG_NAME, "p")
+            messages = " ".join(p.text for p in ps)
+
+            if "User" in messages:
+                info("Wrong credentials. Exiting...")
+                exit(CREDENTIALS_ERROR_EXIT_CODE)
+            if "Captcha" in messages:
+                info("Wrong captcha. Retry...")
+            else:
+                warning("Unknown form error. Retry...")
+
+            # Remove the error popup
+            error_buttons = driver.find_elements(By.CLASS_NAME, LOGIN_ERROR_BTN_CLASS)
+            if error_buttons:
+                for btn in error_buttons:
+                    btn.click()
+            else:
+                critical("Error popup detected, but no '.confirm' buttons were found.")
+                exit(UNKNOWN_ERROR_EXIT_CODE)
+
+        except (ElementNotInteractableException, StaleElementReferenceException):
+            # Popup/button not interactable due to animation/DOM refresh; retry.
             continue
+        except Exception:
+            critical("Couldn't determine login error state. Exiting...")
+            exception()
+            exit(UNKNOWN_ERROR_EXIT_CODE)
 
-        try:
-            driver.find_element(By.ID, 'btnLogin').click()
-        except:
-            exception("Couldn't log in.")
-
-        while True:
-            try:
-                driver.implicitly_wait(1)
-                text = driver.find_elements(By.TAG_NAME, "p")[1].text.split(' ')[0]
-                assert text == 'Forgot'
-                driver.find_element(By.CSS_SELECTOR, "button[class='confirm']").click()
-                error("Wrong captcha. Redo...")
-                break
-            except ElementNotInteractableException:
-                pass
-            except StaleElementReferenceException:
-                pass
-            except AssertionError:
-                info(f"Loged in successfully as {UID}")
-                driver.implicitly_wait(10)
-                return
-            except:
-                critical("Couldn't login properly..")
-                exception()
-                exit(1)
-                
-            
+    critical("Exceeded maximum login attempts. Exiting...")
+    exit(TIMEOUT_ATTEMPTS_EXIT_CODE)

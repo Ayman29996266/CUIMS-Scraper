@@ -2,6 +2,7 @@ try:
     from selenium.common.exceptions import ElementNotInteractableException
     from selenium.common.exceptions import StaleElementReferenceException
     from selenium.common.exceptions import NoSuchElementException
+    from selenium.common.exceptions import TimeoutException
     from selenium.webdriver import FirefoxOptions
     from selenium.webdriver.common.by import By
     from selenium.webdriver import Firefox
