@@ -110,7 +110,7 @@ def _download_and_move_id_card(
     """
     download_dir = os.path.abspath(os.getcwd())  # enforce CWD
     out_dir = os.path.abspath(out_dir or os.getcwd())
-    dest_path = os.path.join(out_dir, f"{uid}_ID.pdf")
+    dest_path = os.path.join(out_dir, f"{uid}.pdf")
 
     btn_div = driver.find_element(By.ID, ID_DOWNLOAD_BTN_ID)
     btn_anchor = btn_div.find_element(By.TAG_NAME, "a")

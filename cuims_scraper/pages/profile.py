@@ -46,11 +46,11 @@ def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
                 decoded_data = b64decode(base64_data)
                 image = Image.open(BytesIO(decoded_data))
                 try:
-                    remove(f'{dictionary['UID']}_profile_pic.png')
+                    remove(f'{dictionary['UID']}.png')
                     info("Previous picture removed.")
                 except:
                     pass
-                image.save(f'{dictionary['UID']}_profile_pic.png')
+                image.save(f'{dictionary['UID']}.png')
                 info("Picture saved successfully.")
             except:
                 try:

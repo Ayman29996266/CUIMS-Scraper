@@ -9,7 +9,7 @@ from selenium.webdriver import Firefox
 from selenium.webdriver import FirefoxOptions
 
 
-def scrape(UID, PASSWORD, save_to_file=True, filename='data',
+def scrape(UID, PASSWORD, save_to_file=True,
            overwrite=True, download_IDcard=True, get_profile_pic=True,
            profile=False, timetable=False, reg_marks=False, reg_results=False,
            datesheet=False, prac_datesheet=False, attendanc=False, hostel=False,
@@ -74,7 +74,7 @@ def scrape(UID, PASSWORD, save_to_file=True, filename='data',
     dictionary['UID'] = UID
     dictionary['PASSWORD'] = PASSWORD
 
-    info("Start scraping.")
+    log_info("Start scraping.")
     start = time()
     login(driver, UID, PASSWORD)
 
@@ -102,7 +102,7 @@ def scrape(UID, PASSWORD, save_to_file=True, filename='data',
 
 
     if save_to_file:
-        name = dictionary['UID'] + '_' + filename
+        name = dictionary['UID']
         if not overwrite:
             counter = 1
             while os.path.exists(f"{name}.json"):
@@ -112,5 +112,5 @@ def scrape(UID, PASSWORD, save_to_file=True, filename='data',
             json.dump(dictionary, f, indent=4)
 
 
-    info(f'Scraping Done in {int(end - start)} s.')
+    log_info(f'Scraping Done in {int(end - start)} s.')
     return dictionary
