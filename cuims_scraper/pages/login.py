@@ -23,7 +23,7 @@ from ..constants import (
     LOGIN_ERROR_BTN_CLASS,
     LOGIN_ERROR_POPUP_CLASS,
 )
-from ..logger.logger import log_info, log_warning, log_critical, log_exception
+from ..logger import log_info, log_warning, log_critical, log_exception
 from ..shared import UnknownException, CredentialsError
 
 

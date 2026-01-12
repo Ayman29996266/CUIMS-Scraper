@@ -1,5 +1,5 @@
 from .constants import LOADER_WRAPPER_ID
-from .logger.logger import log_critical
+from .logger import log_critical
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait

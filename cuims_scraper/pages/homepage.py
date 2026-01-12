@@ -16,7 +16,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from ..shared import wait_for_loader
-from ..logger.logger import log_info, log_warning, log_error, log_critical, log_exception
+from ..logger import log_info, log_warning, log_error, log_critical, log_exception
 from ..constants import (
     ID_DOWNLOAD_BTN_ID,
     HOME_PAGE_BTN_ID,
