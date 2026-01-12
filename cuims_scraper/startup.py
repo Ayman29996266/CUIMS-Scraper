@@ -4,8 +4,8 @@ try:
     from selenium.common.exceptions import NoSuchElementException
     from selenium.common.exceptions import TimeoutException
     from selenium.webdriver import FirefoxOptions
-    from selenium.webdriver.common.by import By
     from selenium.webdriver import Firefox
+    from selenium.webdriver.common.by import By
 except:
     print("You need to have selenium package installed to use cuims_scraper.")
     exit(1)
@@ -29,13 +29,9 @@ except:
     exit(1)
 
 
-
-
 def wait_for_loader(driver) -> None:
-        try:
-            while True:
-                driver.find_element(By.ID, 'loader-wrapper').click()
-        except:
-            return
-        
-
+    try:
+        while True:
+            driver.find_element(By.ID, "loader-wrapper").click()
+    except:
+        return
