@@ -12,7 +12,7 @@ from ..startup import wait_for_loader
 
 
 def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
-    info("Moving to profile page.")
+    log_info("Moving to profile page.")
     try:
         # Move to the profile page
         page = driver.find_element(By.CSS_SELECTOR, 'a[href="frmStudentProfile.aspx"]')
@@ -22,7 +22,7 @@ def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
 
         # get profile picture
         if get_profile_pic:
-            info("Getting profile picture.")
+            log_info("Getting profile picture.")
             itr = 0
             try:
                 while True:
@@ -47,23 +47,23 @@ def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
                 image = Image.open(BytesIO(decoded_data))
                 try:
                     remove(f'{dictionary['UID']}.png')
-                    info("Previous picture removed.")
+                    log_info("Previous picture removed.")
                 except:
                     pass
                 image.save(f'{dictionary['UID']}.png')
-                info("Picture saved successfully.")
+                log_info("Picture saved successfully.")
             except:
                 try:
                     lines = driver.find_elements(By.CLASS_NAME, 'row')
-                    exception("Profile picture couldn't be downloaded.")
+                    log_exception("Profile picture couldn't be downloaded.")
                 except:
-                    exception("No profile information found.")
+                    log_exception("No profile information found.")
                     dictionary['profile'] = None
-                    return
+                    return dictionary
         # 
 
         # get profile information
-        info("Getting profile information.")
+        log_info("Getting profile information.")
         itr = 0
         while True:
             try:
@@ -73,7 +73,7 @@ def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
                     lines[i + 1].find_elements(By.TAG_NAME, 'div')[1].text
                     for i in range(15)
                 }
-                info("Profile information recived successfully.")
+                log_info("Profile information recived successfully.")
                 break
             except NoSuchElementException as e:
                 itr += 1
@@ -82,12 +82,12 @@ def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
                 else:
                     pass
             except:
-                exception("Profile information couldn't be recived.")
+                log_exception("Profile information couldn't be recived.")
                 dictionary['profile'] = {}
         # 
 
         # get qualifications
-        info("Getting qualifications.")
+        log_info("Getting qualifications.")
         itr = 0
         while True:
             try:
@@ -99,7 +99,7 @@ def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
                     [rows[i + 1].find_elements(By.TAG_NAME, 'td')[j].text for i in range(len(rows) - 1)]
                     for j in range(len(rows[0].find_elements(By.TAG_NAME, 'th')))
                 }
-                info("Qualifications recived successfully.")
+                log_info("Qualifications recived successfully.")
                 break
             except NoSuchElementException as e:
                 itr += 1
@@ -108,12 +108,12 @@ def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
                 else:
                     pass
             except:
-                exception("Qualifications couldn't be recived.")
+                log_exception("Qualifications couldn't be recived.")
                 dictionary['profile']['qualifications'] = None
         # 
 
         # get contacts
-        info("Getting contacts.")
+        log_info("Getting contacts.")
         itr = 0
         while True:
             try:
@@ -125,7 +125,7 @@ def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
                     [rows[i + 1].find_elements(By.TAG_NAME, 'td')[j].text for i in range(len(rows) - 1)]
                     for j in range(len(rows[0].find_elements(By.TAG_NAME, 'th')))
                 }
-                info("Contacts recived successfully")
+                log_info("Contacts recived successfully")
                 break
             except NoSuchElementException as e:
                 itr += 1
@@ -134,14 +134,14 @@ def get_profile(driver, dictionary, get_profile_pic=True) -> dict:
                 else:
                     pass
             except:
-                exception("Contacts couldn't be recived.")
+                log_exception("Contacts couldn't be recived.")
                 dictionary['profile']['contacts'] = None
         # 
 
         return dictionary['profile']
 
     except:
-        exception("Couldn't navigate to the profile page.")
+        log_exception("Couldn't navigate to the profile page.")
         dictionary['profile'] = None
         return dictionary['profile']
     #

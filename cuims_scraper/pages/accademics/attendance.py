@@ -8,7 +8,7 @@ from ...startup import wait_for_loader
 
 def get_attendance(driver, dictionary) -> dict:
 
-    info("Moving to the attendance page.")
+    log_info("Moving to the attendance page.")
     try:
         # Move to the attendance page
         page = driver.find_element(By.ID, 'menu-content').find_element(By.TAG_NAME, 'ul').find_element(By.TAG_NAME, 'a')
@@ -18,7 +18,7 @@ def get_attendance(driver, dictionary) -> dict:
         #
 
         # get the attendance
-        info("Getting attendance.")
+        log_info("Getting attendance.")
         try:
             itr = 0
             while True:
@@ -43,8 +43,8 @@ def get_attendance(driver, dictionary) -> dict:
                 except Exception as e:
                     raise e
 
-            info("Main attendance table recived successfully.")
-            info("Getting full reports.")
+            log_info("Main attendance table recived successfully.")
+            log_info("Getting full reports.")
             
             dictionary['attendance'][f'{head[-1].text}'] = []
             for row in rows:
@@ -53,14 +53,14 @@ def get_attendance(driver, dictionary) -> dict:
                     row.find_elements(By.TAG_NAME, 'td')[-1].click()
                     wait_for_loader(driver)
                 except:
-                    exception(f"Couldn't find full report button for subject: {row.find_elements(By.TAG_NAME, 'td')[0].text}")
+                    log_exception(f"Couldn't find full report button for subject: {row.find_elements(By.TAG_NAME, 'td')[0].text}")
                     continue
 
                 for k in range(10):
                     try:
                         driver.find_element(By.CSS_SELECTOR, "button[class='confirm']").click()
                         dictionary['attendance'][f'{head[-1].text}'].append(None)
-                        warning(f"Subject: {row.find_elements(By.TAG_NAME, 'td')[0].text} doesn't have a full report.")
+                        log_warning(f"Subject: {row.find_elements(By.TAG_NAME, 'td')[0].text} doesn't have a full report.")
                         break
                     except:
                         pass
@@ -76,24 +76,24 @@ def get_attendance(driver, dictionary) -> dict:
                         })
                         
                         driver.find_element(By.ID, 'popupid').find_element(By.CLASS_NAME, 'closebtn').click()
-                        info(f"Recived full report for subject: {row.find_elements(By.TAG_NAME, 'td')[0].text}")
+                        log_info(f"Recived full report for subject: {row.find_elements(By.TAG_NAME, 'td')[0].text}")
                         break
                     except Exception as e:
                         if k == 9:
-                            critical(f"Panic: Couldn't exit current fullreport for subject: {row.find_elements(By.TAG_NAME, 'td')[0].text}\n{e}")
+                            log_critical(f"Panic: Couldn't exit current fullreport for subject: {row.find_elements(By.TAG_NAME, 'td')[0].text}\n{e}")
                             exit(1)
                         else:
                             pass
 
-            info("Attendance fetched successfully.")
+            log_info("Attendance fetched successfully.")
             return dictionary['attendance']
         except:
             dictionary['attendance'] = None
-            exception("Attendance couldn't be recived.")
+            log_exception("Attendance couldn't be recived.")
             return dictionary['attendance']
         #
     except:
         dictionary['attendance'] = None
-        exception("Couldn't navigate to the attendance page.")
+        log_exception("Couldn't navigate to the attendance page.")
         return dictionary['attendance']
     #

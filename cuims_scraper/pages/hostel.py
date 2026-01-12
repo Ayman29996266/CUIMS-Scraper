@@ -8,7 +8,7 @@ from ..startup import wait_for_loader
 
 def get_hostel(driver, dictionary) -> None:
 
-    info("Moving to hostel page.")
+    log_info("Moving to hostel page.")
     try:
         # Move to the hostel page
         page = driver.find_element(By.CSS_SELECTOR, 'a[href="frmStudenHostelDetails.aspx"]')
@@ -17,7 +17,7 @@ def get_hostel(driver, dictionary) -> None:
         #
 
         # get the table
-        info("Getting hostel details")
+        log_info("Getting hostel details")
         try:
             itr = 0
             while True:
@@ -41,12 +41,12 @@ def get_hostel(driver, dictionary) -> None:
                 except Exception as e:
                     raise e
 
-            info("Hostel details recived successfully.")
+            log_info("Hostel details recived successfully.")
         except:
-            exception("Couldn't recive hostel details.")
+            log_exception("Couldn't recive hostel details.")
             dictionary['hostel'] = None
         #
     except:
-        exception("Couldn't navigate to the hostel page.")
+        log_exception("Couldn't navigate to the hostel page.")
         dictionary['hostel'] = None
     #

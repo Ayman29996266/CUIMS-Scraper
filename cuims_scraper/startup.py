@@ -23,9 +23,9 @@ except:
     exit(1)
 
 try:
-    import easyocr
+    import pytesseract
 except:
-    print("You need to have easyocr package installed to use cuims_scraper.")
+    print("You need to have pytesseract package installed to use cuims_scraper.")
     exit(1)
 
 

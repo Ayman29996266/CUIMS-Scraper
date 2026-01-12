@@ -8,7 +8,7 @@ from ...startup import wait_for_loader
 
 def get_regular_results(driver, dictionary) -> dict:
 
-    info("Moving to regular results page.")
+    log_info("Moving to regular results page.")
     try:
         # Move to the regular results page
         page = driver.find_element(By.CSS_SELECTOR, 'a[href="result.aspx"]')
@@ -18,7 +18,7 @@ def get_regular_results(driver, dictionary) -> dict:
         #
 
         # get the regular results
-        info("Getting the regular results.")
+        log_info("Getting the regular results.")
 
         # itr = 0
         # while True:
@@ -40,7 +40,7 @@ def get_regular_results(driver, dictionary) -> dict:
         #         else:
         #             pass
         #     except Exception as e:
-        #         exception("Couldn't get the per session regular results.")
+        #         log_exception("Couldn't get the per session regular results.")
         #         raise e
 
         try:
@@ -48,7 +48,7 @@ def get_regular_results(driver, dictionary) -> dict:
             while True:
                 try:
                     dictionary['regular results']['CGPA'] = driver.find_elements(By.CLASS_NAME, "from-control")[7].text.split(' ')[-1]
-                    info("CGPA recived successfully.")
+                    log_info("CGPA recived successfully.")
                     break
                 except StaleElementReferenceException:
                     pass
@@ -60,7 +60,7 @@ def get_regular_results(driver, dictionary) -> dict:
                         pass
                 except:
                     dictionary['regular results']['CGPA'] = None
-                    exception("Couldn't recive CGPA.")
+                    log_exception("Couldn't recive CGPA.")
                     break
 
 
@@ -85,7 +85,7 @@ def get_regular_results(driver, dictionary) -> dict:
                         pass
                     except NoSuchElementException as e:
                         itr += 1
-                        exception()
+                        log_exception()
                         if itr == 50:
                             raise e
                         else: 
@@ -94,20 +94,20 @@ def get_regular_results(driver, dictionary) -> dict:
                         raise e
 
                 if sgpa == ':':
-                    error("Couldn't recive SGPA.")
+                    log_error("Couldn't recive SGPA.")
                     dictionary['regular results'][f"semester_{k + 1}"]["SGPA"] =  None
                 else:
                     dictionary['regular results'][f"semester_{k + 1}"]["SGPA"] = sgpa
 
-            info("regular Results recived successfully.")
+            log_info("regular Results recived successfully.")
             return dictionary['regular results']
         except:
             dictionary['regular results'] = None
-            exception("regular Results couldn't be recived.")
+            log_exception("regular Results couldn't be recived.")
             return dictionary['regular results']
         #
     except:
-        exception("Couldn't navigate to the regular results page.")
+        log_exception("Couldn't navigate to the regular results page.")
         dictionary['regular results'] = None
         return dictionary['regular results']
     #

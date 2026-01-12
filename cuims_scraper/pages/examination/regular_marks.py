@@ -8,7 +8,7 @@ from ...startup import wait_for_loader
 
 def get_regular_marks(driver, dictionary) -> dict:
 
-    info("Moving to regular marks page.")
+    log_info("Moving to regular marks page.")
     try:
         # Move to the regular marks page
         page = driver.find_element(By.CSS_SELECTOR, 'a[href="frmStudentMarksView.aspx"]')
@@ -18,7 +18,7 @@ def get_regular_marks(driver, dictionary) -> dict:
         #
 
         # get the regular marks
-        info("Getting the regular marks.")
+        log_info("Getting the regular marks.")
         try:
             itr = 0
             while True:
@@ -49,15 +49,15 @@ def get_regular_marks(driver, dictionary) -> dict:
                 except Exception as e:
                     raise e
 
-            info("Regular marks recived successfully.")
+            log_info("Regular marks recived successfully.")
             return dictionary['regular marks']
         except:
             dictionary['regular marks'] = None
-            exception("Regular marks couldn't be recived.")
+            log_exception("Regular marks couldn't be recived.")
             return dictionary['regular marks']
         #
     except:
-        exception("Couldn't navigate to the regular marks page.")
+        log_exception("Couldn't navigate to the regular marks page.")
         dictionary['regular marks'] = None
         return dictionary['regular marks']
     #

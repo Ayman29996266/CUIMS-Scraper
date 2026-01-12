@@ -8,7 +8,7 @@ from ...startup import wait_for_loader
 
 def get_prac_datesheet(driver, dictionary) -> dict:
 
-    info("Moving to practical date sheet page.")
+    log_info("Moving to practical date sheet page.")
     try:
         # Move to the practical date sheet page
         page = driver.find_element(By.CSS_SELECTOR, 'a[href="frmStudentPracticleDateSheet.aspx"]')
@@ -18,7 +18,7 @@ def get_prac_datesheet(driver, dictionary) -> dict:
         #
 
         # get the practical date sheet
-        info("Getting the practical date sheet.")
+        log_info("Getting the practical date sheet.")
         try:
             itr = 0
             while True:
@@ -43,15 +43,15 @@ def get_prac_datesheet(driver, dictionary) -> dict:
                 except Exception as e:
                     raise e
 
-            info("Practical date sheet recived successfully.")
+            log_info("Practical date sheet recived successfully.")
             return dictionary['practical date sheet']
         except:
             dictionary['Practical date sheet'] = None
-            exception("Practical date sheet couldn't be recived.")
+            log_exception("Practical date sheet couldn't be recived.")
             return dictionary['practical date sheet']
         #
     except:
-        exception("Couldn't navigate to the practical date sheet page.")
+        log_exception("Couldn't navigate to the practical date sheet page.")
         dictionary['practical date sheet'] = None
         return dictionary['practical date sheet']
     #

@@ -8,7 +8,7 @@ from ...startup import wait_for_loader
 
 def get_timetable(driver, dictionary) -> dict:
 
-    info("Moving to timetable page.")
+    log_info("Moving to timetable page.")
     try:
         # Move to the timetable page
         page = driver.find_element(By.CSS_SELECTOR, 'a[href="frmMyTimeTable.aspx"]')
@@ -30,7 +30,7 @@ def get_timetable(driver, dictionary) -> dict:
         #
 
         # get the hashmap
-        info("Getting the subjects hashmap.")
+        log_info("Getting the subjects hashmap.")
         try:
             itr = 0
             while True:
@@ -55,14 +55,14 @@ def get_timetable(driver, dictionary) -> dict:
                 except Exception as e:
                     raise e
 
-            info("Hashmap recived successfully.")
+            log_info("Hashmap recived successfully.")
         except:
             dictionary['timetable']['hashmap'] = None
-            exception("Subjects hashmap couldn't be recived.")
+            log_exception("Subjects hashmap couldn't be recived.")
         #
 
         # get the Schedule
-        info("Getting the schedule.")
+        log_info("Getting the schedule.")
         try:
             itr = 0
             while True:
@@ -87,16 +87,16 @@ def get_timetable(driver, dictionary) -> dict:
                 except Exception as e:
                     raise e
 
-            info("Schedule recived successfully.")
+            log_info("Schedule recived successfully.")
             return dictionary['timetable']
         except:
             dictionary['timetable']['Schedule'] = None
-            exception("Schedule couldn't be recived.")
+            log_exception("Schedule couldn't be recived.")
             return dictionary['timetable']
         #
 
     except:
-        exception("Couldn't navigate to the timetable page.")
+        log_exception("Couldn't navigate to the timetable page.")
         dictionary['timetable'] = None
         return dictionary['timetable']
     #
