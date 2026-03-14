@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from selenium.common.exceptions import (
     TimeoutException,
-    ElementNotInteractableException,
+    NoSuchElementException,
     StaleElementReferenceException,
+    ElementNotInteractableException,
+    ElementClickInterceptedException,
 )
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,6 +23,8 @@ from ...constants import (
     LOGIN_PAGE_ID,
     LOGIN_ERROR_BTN_CLASS,
     LOGIN_ERROR_POPUP_CLASS,
+    BURGER_MENU_BTN_CLASS,
+    FORCE_POPUP_ID,
 )
 from .read_captcha import read_captcha
 from ...logger import log_info, log_warning, log_critical, log_exception
@@ -87,7 +91,9 @@ def login(driver: WebDriver, uid: str, password: str, *, attempts: int = 5) -> N
                 EC.element_to_be_clickable((By.ID, CAPTCHA_FIELD_ID))
             )
             cap_field.clear()
-            cap_field.send_keys(read_captcha(driver, CAPTCHA_IMAGE_ID))
+            cap_txt = read_captcha(driver, CAPTCHA_IMAGE_ID)
+            log_info(f"CAPTCHA read: {cap_txt}")
+            cap_field.send_keys(cap_txt)
 
             login_btn: WebElement = wait.until(
                 EC.element_to_be_clickable((By.ID, LOGIN_BTN_ID))
@@ -107,6 +113,26 @@ def login(driver: WebDriver, uid: str, password: str, *, attempts: int = 5) -> N
             )
         except TimeoutException:
             log_info("Login successful.")
+            try:
+                log_info("Checking for any overlay. Ads, force popups, etc.")
+                menu = wait.until(
+                    EC.element_to_be_clickable((By.CLASS_NAME, BURGER_MENU_BTN_CLASS))
+                )
+                menu.click()
+            except ElementClickInterceptedException:
+                log_info("Found an overlay, attempting to close it...")
+                try:
+                    popup = driver.find_element(By.ID, FORCE_POPUP_ID)
+                    close_btn = WebDriverWait(popup, 10).until(
+                        EC.element_to_be_clickable((By.TAG_NAME, "button"))
+                    )
+                    close_btn.click()
+                    wait.until(EC.invisibility_of_element(popup))
+                    log_info("Overlay closed.")
+                except NoSuchElementException:
+                    log_critical(
+                        "Was not able to determine the type of overlay and close it."
+                    )
             return
 
         # Still on login page: detect error popup and decide what to do.
@@ -137,6 +163,7 @@ def login(driver: WebDriver, uid: str, password: str, *, attempts: int = 5) -> N
             if error_buttons:
                 for btn in error_buttons:
                     btn.click()
+                    wait.until(EC.invisibility_of_element(popups[0]))
             else:
                 log_critical(
                     "Error popup detected, but no '.confirm' buttons were found."

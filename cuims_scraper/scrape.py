@@ -54,7 +54,7 @@ def scrape(UID, PASSWORD, save_to_file=True,
     download_dir = os.path.abspath(os.getcwd())
 
     driver_options = FirefoxOptions()
-    driver_options.add_argument("--headless")
+    driver_options.add_argument("--headless")                                           # don't show the window
     driver_options.set_preference("browser.download.folderList", 2)                     # allow custom download folder
     driver_options.set_preference("browser.download.dir", download_dir)                 # set custom download folder
     driver_options.set_preference("browser.download.useDownloadDir", True)              # use custom download folder

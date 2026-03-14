@@ -130,5 +130,5 @@ def read_captcha(
 
     if not text:
         log_critical("Tesseract was not able to read the captcha image.")
-    return text
+    return text.strip()
 
